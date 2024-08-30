@@ -171,12 +171,194 @@ export enum TypeScriptJsxMode {
 }
 
 export interface TypeScriptCompilerOptions {
+  // Type Checking
   /**
-   * Allow JavaScript files to be compiled.
+   * Allow Unreachable Code
+   *
+   * When:
+   *
+   * - `undefined` (default) provide suggestions as warnings to editors
+   * - `true` unreachable code is ignored
+   * - `false` raises compiler errors about unreachable code
+   *
+   * These warnings are only about code which is provably unreachable due to the use of JavaScript syntax.
+   *
+   * @see https://www.typescriptlang.org/tsconfig#allowUnreachableCode
+   */
+  readonly allowUnreachableCode?: boolean;
+
+  /**
+   * Allow Unused Labels
+   *
+   * When:
+   *
+   * - `undefined` (default) provide suggestions as warnings to editors
+   * - `true` unused labels are ignored
+   * - `false` raises compiler errors about unused labels
+   *
+   * Labels are very rare in JavaScript and typically indicate an attempt to write an object literal:
+   *
+   * ```ts
+   * function verifyAge(age: number) {
+   *   // Forgot 'return' statement
+   *   if (age > 18) {
+   *     verified: true;
+   * //  ^^^^^^^^ Unused label.
+   *   }
+   * }
+   * ```
+   *
+   * @see https://www.typescriptlang.org/tsconfig#allowUnusedLabels
+   */
+  readonly allowUnusedLabels?: boolean;
+
+  /**
+   * Ensures that your files are parsed in the ECMAScript strict mode, and emit “use strict”
+   * for each source file.
+   *
+   * @default true
+   */
+  readonly alwaysStrict?: boolean;
+
+  /**
+   * Specifies that optional property types should be interpreted exactly as written, meaning that `| undefined` is not added to the type
+   * Available with TypeScript 4.4 and newer.
+   * @default false
+   */
+  readonly exactOptionalPropertyTypes?: boolean;
+
+  /**
+   * Report errors for fallthrough cases in switch statements. Ensures that any non-empty
+   * case inside a switch statement includes either break or return. This means you won’t
+   * accidentally ship a case fallthrough bug.
+   *
+   * @default true
+   */
+  readonly noFallthroughCasesInSwitch?: boolean;
+
+  /**
+   * In some cases where no type annotations are present, TypeScript will fall back to a
+   * type of any for a variable when it cannot infer the type.
+   *
+   * @default true
+   */
+  readonly noImplicitAny?: boolean;
+
+  /**
+   * Using `noImplicitOverride`, you can ensure that sub-classes never go out of sync as
+   * they are required to explicitly declare that they are overriding a member using the
+   * `override` keyword. This also improves readability of the programmer's intent.
+   *
+   * Available with TypeScript 4.3 and newer.
    *
    * @default false
    */
-  readonly allowJs?: boolean;
+  readonly noImplicitOverride?: boolean;
+
+  /**
+   * When enabled, TypeScript will check all code paths in a function to ensure they
+   * return a value.
+   *
+   * @default true
+   */
+  readonly noImplicitReturns?: boolean;
+
+  /**
+   * Raise error on ‘this’ expressions with an implied ‘any’ type.
+   *
+   * @default true
+   */
+  readonly noImplicitThis?: boolean;
+
+  /**
+   * Raise error on use of the dot syntax to access fields which are not defined.
+   *
+   * @default true
+   */
+  readonly noPropertyAccessFromIndexSignature?: boolean;
+
+  /**
+   * Raise error when accessing indexes on objects with unknown keys defined in index signatures.
+   *
+   * @default true
+   */
+  readonly noUncheckedIndexedAccess?: boolean;
+
+  /**
+   * Report errors on unused local variables.
+   *
+   * @default true
+   */
+  readonly noUnusedLocals?: boolean;
+
+  /**
+   * Report errors on unused parameters in functions.
+   *
+   * @default true
+   */
+  readonly noUnusedParameters?: boolean;
+
+  /**
+   * The strict flag enables a wide range of type checking behavior that results in stronger guarantees
+   * of program correctness. Turning this on is equivalent to enabling all of the strict mode family
+   * options, which are outlined below. You can then turn off individual strict mode family checks as
+   * needed.
+   *
+   * @default true
+   */
+  readonly strict?: boolean;
+
+  /**
+   * When set, TypeScript will check that the built-in methods of functions `call`, `bind`, and `apply`
+   * are invoked with correct argument for the underlying function.
+   *
+   * @see {@link https://www.typescriptlang.org/tsconfig/#strictBindCallApply}
+   * @since 3.2
+   * @default true if strict; false otherwise
+   */
+  readonly strictBindCallApply?: boolean;
+
+  /**
+   * When enabled, this flag causes functions parameters to be checked more correctly.
+   * @see {@link https://www.typescriptlang.org/tsconfig/#strictFunctionTypes}
+   * @since 2.6
+   * @default true if strict; false otherwise
+   */
+  readonly strictFunctionTypes?: boolean;
+
+  /**
+   * When strictNullChecks is false, null and undefined are effectively ignored by the language.
+   * This can lead to unexpected errors at runtime.
+   * When strictNullChecks is true, null and undefined have their own distinct types and you’ll
+   * get a type error if you try to use them where a concrete value is expected.
+   *
+   * @default true
+   */
+  readonly strictNullChecks?: boolean;
+
+  /**
+   * When set to true, TypeScript will raise an error when a class property was declared but
+   * not set in the constructor.
+   *
+   * @default true
+   */
+  readonly strictPropertyInitialization?: boolean;
+
+  /**
+   * Change the type of the variable in a catch clause from any to unknown
+   * Available with TypeScript 4.4 and newer.
+   * @default true
+   */
+  readonly useUnknownInCatchVariables?: boolean;
+
+  // Modules
+  /**
+   * Suppress arbitrary extension import errors with the assumption that a bundler will be handling it.
+   *
+   * @see https://www.typescriptlang.org/tsconfig#allowArbitraryExtensions
+   * @default undefined
+   */
+  readonly allowArbitraryExtensions?: boolean;
 
   /**
    * Allows TypeScript files to import each other with TypeScript-specific extensions (`.ts`, `.mts`, `.tsx`).
@@ -187,20 +369,57 @@ export interface TypeScriptCompilerOptions {
   readonly allowImportingTsExtensions?: boolean;
 
   /**
-   * Suppress arbitrary extension import errors with the assumption that a bundler will be handling it.
-   *
-   * @see https://www.typescriptlang.org/tsconfig#allowArbitraryExtensions
-   * @default undefined
+   * When set to true, `allowUmdGlobalAccess` lets you access UMD exports as globals from inside module files.
+   * A module file is a file that has imports and/or exports. Without this flag, using an export from a
+   * UMD module requires an import declaration.
+   * @since 3.5
+   * @see {@link https://www.typescriptlang.org/tsconfig/#allowUmdGlobalAccess}
    */
-  readonly allowArbitraryExtensions?: boolean;
+  readonly allowUmdGlobalAccess?: boolean;
 
   /**
-   * Ensures that your files are parsed in the ECMAScript strict mode, and emit “use strict”
-   * for each source file.
+   * Lets you set a base directory to resolve non-absolute module names.
    *
-   * @default true
+   * You can define a root folder where you can do absolute file resolution.
    */
-  readonly alwaysStrict?: boolean;
+  readonly baseUrl?: string;
+
+  /**
+   * List of additional conditions that should succeed when TypeScript resolves from an `exports` or `imports` field of a `package.json`.
+   *
+   * @see https://www.typescriptlang.org/tsconfig#customConditions
+   * @default undefined
+   */
+  readonly customConditions?: string[];
+
+  /**
+   * Sets the module system for the program.
+   * See https://www.typescriptlang.org/docs/handbook/modules.html#ambient-modules.
+   *
+   * @default "CommonJS"
+   */
+  readonly module?: string;
+
+  /**
+   * Determine how modules get resolved. Either "Node" for Node.js/io.js style resolution, or "Classic".
+   *
+   * @default "node"
+   */
+  readonly moduleResolution?: TypeScriptModuleResolution;
+
+  /**
+   * Provides a way to override the default list of file name suffixes to search when resolving a module.
+   * @see {@link https://www.typescriptlang.org/tsconfig/#moduleSuffixes}
+   * @since 4.7
+   */
+  readonly moduleSuffixes?: string[];
+
+  /**
+   * Allow JavaScript files to be compiled.
+   *
+   * @default false
+   */
+  readonly allowJs?: boolean;
 
   /**
    * Offers a way to configure the root directory for where declaration files are emitted.
@@ -229,14 +448,6 @@ export interface TypeScriptCompilerOptions {
    * downlevelIteration allows for these iteration primitives to be used more accurately in ES5 environments if a Symbol.iterator implementation is present.
    */
   readonly downlevelIteration?: boolean;
-
-  /**
-   * List of additional conditions that should succeed when TypeScript resolves from an `exports` or `imports` field of a `package.json`.
-   *
-   * @see https://www.typescriptlang.org/tsconfig#customConditions
-   * @default undefined
-   */
-  readonly customConditions?: string[];
 
   /**
    * Emit __importStar and __importDefault helpers for runtime babel
@@ -360,21 +571,6 @@ export interface TypeScriptCompilerOptions {
   readonly moduleDetection?: TypeScriptModuleDetection;
 
   /**
-   * Sets the module system for the program.
-   * See https://www.typescriptlang.org/docs/handbook/modules.html#ambient-modules.
-   *
-   * @default "CommonJS"
-   */
-  readonly module?: string;
-
-  /**
-   * Determine how modules get resolved. Either "Node" for Node.js/io.js style resolution, or "Classic".
-   *
-   * @default "node"
-   */
-  readonly moduleResolution?: TypeScriptModuleResolution;
-
-  /**
    * Do not emit outputs.
    *
    * @default false
@@ -397,76 +593,6 @@ export interface TypeScriptCompilerOptions {
   readonly noEmitOnError?: boolean;
 
   /**
-   * Report errors for fallthrough cases in switch statements. Ensures that any non-empty
-   * case inside a switch statement includes either break or return. This means you won’t
-   * accidentally ship a case fallthrough bug.
-   *
-   * @default true
-   */
-  readonly noFallthroughCasesInSwitch?: boolean;
-
-  /**
-   * In some cases where no type annotations are present, TypeScript will fall back to a
-   * type of any for a variable when it cannot infer the type.
-   *
-   * @default true
-   */
-  readonly noImplicitAny?: boolean;
-
-  /**
-   * Using `noImplicitOverride`, you can ensure that sub-classes never go out of sync as
-   * they are required to explicitly declare that they are overriding a member using the
-   * `override` keyword. This also improves readability of the programmer's intent.
-   *
-   * Available with TypeScript 4.3 and newer.
-   *
-   * @default false
-   */
-  readonly noImplicitOverride?: boolean;
-
-  /**
-   * When enabled, TypeScript will check all code paths in a function to ensure they
-   * return a value.
-   *
-   * @default true
-   */
-  readonly noImplicitReturns?: boolean;
-  /**
-   * Raise error on ‘this’ expressions with an implied ‘any’ type.
-   *
-   * @default true
-   */
-  readonly noImplicitThis?: boolean;
-
-  /**
-   * Raise error on use of the dot syntax to access fields which are not defined.
-   *
-   * @default true
-   */
-  readonly noPropertyAccessFromIndexSignature?: boolean;
-
-  /**
-   * Raise error when accessing indexes on objects with unknown keys defined in index signatures.
-   *
-   * @default true
-   */
-  readonly noUncheckedIndexedAccess?: boolean;
-
-  /**
-   * Report errors on unused local variables.
-   *
-   * @default true
-   */
-  readonly noUnusedLocals?: boolean;
-
-  /**
-   * Report errors on unused parameters in functions.
-   *
-   * @default true
-   */
-  readonly noUnusedParameters?: boolean;
-
-  /**
    * Allows importing modules with a ‘.json’ extension, which is a common practice
    * in node projects. This includes generating a type for the import based on the static JSON shape.
    *
@@ -480,34 +606,6 @@ export interface TypeScriptCompilerOptions {
    * @default false
    */
   readonly skipLibCheck?: boolean;
-
-  /**
-   * The strict flag enables a wide range of type checking behavior that results in stronger guarantees
-   * of program correctness. Turning this on is equivalent to enabling all of the strict mode family
-   * options, which are outlined below. You can then turn off individual strict mode family checks as
-   * needed.
-   *
-   * @default true
-   */
-  readonly strict?: boolean;
-
-  /**
-   * When strictNullChecks is false, null and undefined are effectively ignored by the language.
-   * This can lead to unexpected errors at runtime.
-   * When strictNullChecks is true, null and undefined have their own distinct types and you’ll
-   * get a type error if you try to use them where a concrete value is expected.
-   *
-   * @default true
-   */
-  readonly strictNullChecks?: boolean;
-
-  /**
-   * When set to true, TypeScript will raise an error when a class property was declared but
-   * not set in the constructor.
-   *
-   * @default true
-   */
-  readonly strictPropertyInitialization?: boolean;
 
   /**
    * Do not emit declarations for code that has an `@internal` annotation in it’s JSDoc comment.
@@ -557,27 +655,6 @@ export interface TypeScriptCompilerOptions {
   readonly allowSyntheticDefaultImports?: boolean;
 
   /**
-   * Specifies that optional property types should be interpreted exactly as written, meaning that `| undefined` is not added to the type
-   * Available with TypeScript 4.4 and newer.
-   * @default false
-   */
-  readonly exactOptionalPropertyTypes?: boolean;
-
-  /**
-   * Change the type of the variable in a catch clause from any to unknown
-   * Available with TypeScript 4.4 and newer.
-   * @default true
-   */
-  readonly useUnknownInCatchVariables?: boolean;
-
-  /**
-   * Lets you set a base directory to resolve non-absolute module names.
-   *
-   * You can define a root folder where you can do absolute file resolution.
-   */
-  readonly baseUrl?: string;
-
-  /**
    * A series of entries which re-map imports to lookup locations relative to the baseUrl, there is a larger coverage of paths in the handbook.
    *
    * paths lets you declare how TypeScript should resolve an import in your require/imports.
@@ -613,46 +690,6 @@ export interface TypeScriptCompilerOptions {
    * You can read more about composite projects in the handbook.
    */
   readonly tsBuildInfoFile?: string;
-
-  /**
-   * Allow Unused Labels
-   *
-   * When:
-   *
-   * - `undefined` (default) provide suggestions as warnings to editors
-   * - `true` unused labels are ignored
-   * - `false` raises compiler errors about unused labels
-   *
-   * Labels are very rare in JavaScript and typically indicate an attempt to write an object literal:
-   *
-   * ```ts
-   * function verifyAge(age: number) {
-   *   // Forgot 'return' statement
-   *   if (age > 18) {
-   *     verified: true;
-   * //  ^^^^^^^^ Unused label.
-   *   }
-   * }
-   * ```
-   *
-   * @see https://www.typescriptlang.org/tsconfig#allowUnusedLabels
-   */
-  readonly allowUnusedLabels?: boolean;
-
-  /**
-   * Allow Unreachable Code
-   *
-   * When:
-   *
-   * - `undefined` (default) provide suggestions as warnings to editors
-   * - `true` unreachable code is ignored
-   * - `false` raises compiler errors about unreachable code
-   *
-   * These warnings are only about code which is provably unreachable due to the use of JavaScript syntax.
-   *
-   * @see https://www.typescriptlang.org/tsconfig#allowUnreachableCode
-   */
-  readonly allowUnreachableCode?: boolean;
 
   /**
    * Check JS
